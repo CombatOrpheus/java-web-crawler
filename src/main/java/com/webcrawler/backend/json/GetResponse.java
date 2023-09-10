@@ -1,5 +1,7 @@
 package com.webcrawler.backend.json;
 
-public record GetResponse() {
+import java.util.List;
+
+public record GetResponse(String keyword, Status status, List<String> results) {
 
 }
