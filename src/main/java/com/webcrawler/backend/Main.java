@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.webcrawler.backend.crawler.Crawler;
+import com.webcrawler.backend.json.GetResponse;
 import com.webcrawler.backend.json.JsonHandler;
 import com.webcrawler.backend.repository.QueryRepository;
 
@@ -22,16 +23,16 @@ public class Main {
 			res.type("application/json");
 			res.status(id.isPresent() ? 200 : 400);
 
-			return id.map(JsonHandler::toPostResponse).orElseGet(() -> "Invalid ID");
+			return id.map(JsonHandler::toJson).orElseGet(() -> "Invalid ID");
 		});
 
 		get("/crawl/:id", (req, res) -> {
 			String id = req.params("id");
-			Optional<List<String>> result = QueryRepository.getById(id);
+			Optional<GetResponse> result = QueryRepository.getById(id);
 
 			res.type("application/json");
 			res.status(result.isPresent() ? 200 : 400);
-			return result.map(JsonHandler::toGetResponse).orElseGet(() -> "Unknow ID");
+			return result.map(JsonHandler::toJson).orElseGet(() -> "Unknow ID");
 		});
 	}
 }
