@@ -1,9 +1,6 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.search.Constants.BASE_URL;
-
-import java.util.Arrays;
-import java.util.List;
+import static com.webcrawler.backend.constants.Constants.BASE_URL;
 
 import com.webcrawler.backend.search.DownloadProcess.Context;
 
@@ -38,7 +35,7 @@ public final class SearchUtils {
 		if (newPage.startsWith(BASE_URL)) { // Is it an absolute link?
 			return newPage;
 		} else {
-			// TODO Implement the handling of relative links
+			// TODO Add some useful comments
 			String[] parts = newPage.split("/");
 			
 			// Simple links on the form "./page" or just "page"

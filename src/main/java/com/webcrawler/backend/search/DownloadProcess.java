@@ -1,6 +1,6 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.search.Constants.BASE_URL;
+import static com.webcrawler.backend.constants.Constants.BASE_URL;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,7 +39,7 @@ public final class DownloadProcess {
 	/**
 	 * A {@link Pattern} for the detection of anchor elements on the HTML pages.
 	 */
-	private static final Pattern ANCHOR = Pattern.compile("<a.+?>");
+	private static final Pattern ANCHOR = Pattern.compile("<a(.*[^>])>");
 
 	/**
 	 * A simple record that holds the link to the current HTML page and a new link
@@ -60,17 +60,18 @@ public final class DownloadProcess {
 			Page page = SEARCH_QUEUE.poll();
 			SEARCH_QUEUE.add(page);
 			String contents = page.contents();
-			ANCHOR.matcher(contents) // Search for the HTML elements in a page
+			
+			ANCHOR.matcher(contents) // Search for the HTML anchor elements in a page
 					.results() // Get a Stream with the regex matches
 					.map(MatchResult::group) // Get the matching Strings
 					.filter(SearchUtils::containsHref) // Remove the elements that do not contain the field href
 					.map(SearchUtils::extractHref) // Extract the link contained in the href
-					.filter(SearchUtils::validLinks) // Validate the links
+					.filter(SearchUtils::validLinks) // Remove links that lead to other pages
 					.map(link -> new Context(page.url(), link)) // Create a pair with the current page and the new link
-					.map(SearchUtils::handleLinks) // Handle relative links
+					.map(SearchUtils::handleLinks) // Generate the correct absolute links from the relative links
 					.filter(link -> !VISITED_PAGES.contains(link)) // Remove the links that we have already visited
-					.map(Page::new) // Create a new object and start the download process
-					.forEach(SEARCH_QUEUE::add);
+					.map(Page::new) // Create a new Page object and start the download process
+					.forEach(SEARCH_QUEUE::add); // Add these new pages for the next step of the search
 
 		} while (!SEARCH_QUEUE.isEmpty());
 	}

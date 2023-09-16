@@ -1,6 +1,6 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.search.Constants.LENGTH_ID;
+import static com.webcrawler.backend.constants.Constants.LENGTH_ID;
 
 import java.util.HashMap;
 import java.util.Map;
