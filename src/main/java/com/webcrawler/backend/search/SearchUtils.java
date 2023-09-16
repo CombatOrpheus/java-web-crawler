@@ -50,13 +50,16 @@ public final class SearchUtils {
 			StringBuilder relativeLink = new StringBuilder();
 			for (String part: parts) {
 				if (part.equals("..")) {
-					int end = currentPage.lastIndexOf("/");
+					int end = relativeLevel.lastIndexOf("/");
 					relativeLevel = currentPage.substring(0, end);
-					relativeLink.append(part);
+				}
+				
+				if (!part.startsWith(".")) {
 					relativeLink.append("/");
+					relativeLink.append(part);
 				}
 			}
-			return relativeLevel + relativeLevel.toString();
+			return relativeLevel + relativeLink.toString();
 		}
 	}
 
