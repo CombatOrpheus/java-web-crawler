@@ -8,7 +8,7 @@ import java.util.Set;
  * A companion class for the generation of random alphanumeric strings. It keeps
  * track of already generated IDs in order to avoid duplication.
  */
-class RandomString {
+final class RandomString {
 	/**
 	 * The numeric value of the ASCII character 'a'
 	 */

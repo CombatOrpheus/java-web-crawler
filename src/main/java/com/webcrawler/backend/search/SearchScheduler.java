@@ -1,5 +1,7 @@
 package com.webcrawler.backend.search;
 
+import static com.webcrawler.backend.search.Constants.LENGTH_ID;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,12 +25,6 @@ public final class SearchScheduler {
 	 * A map containing the ID and the corresponding search process.
 	 */
 	private static final Map<String, SearchProcess> SEARCH_TASKS = new HashMap<>();
-
-	/**
-	 * A configurable parameter for setting the length of the generated ID. If the
-	 * environment variable is not set, a default length of 10 is used.
-	 */
-	private static final int LENGTH_ID = Integer.parseInt(System.getenv("LENGTH_ID"));
 
 	/**
 	 * Validates the keyword and starts the search process for it.

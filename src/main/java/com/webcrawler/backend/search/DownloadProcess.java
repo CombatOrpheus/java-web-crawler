@@ -1,5 +1,7 @@
 package com.webcrawler.backend.search;
 
+import static com.webcrawler.backend.search.Constants.BASE_URL;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,11 +20,6 @@ import java.util.stream.Stream;
  */
 public final class DownloadProcess {
 	// TODO Implement logging
-
-	/**
-	 * An Environment variable that contains the root URL for the search process.
-	 */
-	private static final String BASE_URL = System.getenv("BASE_URL");
 
 	/**
 	 * A {@link Queue} containing the links to new valid pages.
@@ -44,6 +41,10 @@ public final class DownloadProcess {
 	 */
 	private static final Pattern ANCHOR = Pattern.compile("<a.+?>");
 
+	/**
+	 * A simple record that holds the link to the current HTML page and a new link
+	 * that is either the absolute link to a new page or a relative link.
+	 */
 	record Context(String url, String newUrl) {
 	}
 
