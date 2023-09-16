@@ -1,7 +1,9 @@
 package com.webcrawler.backend.search;
 
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
+import static com.webcrawler.backend.search.Constants.BASE_URL;
+
+import java.util.Arrays;
+import java.util.List;
 
 import com.webcrawler.backend.search.DownloadProcess.Context;
 
@@ -11,27 +13,23 @@ import com.webcrawler.backend.search.DownloadProcess.Context;
  */
 public final class SearchUtils {
 
-	private static final String BASE_URL = System.getenv("BASE_URL");
-
-	private static final Pattern HREF = Pattern.compile("href=\"(.+)\"");
-	private static final Pattern RELATIVE = Pattern.compile("../");
-	private static final Predicate<String> CONTAINS_HREF = HREF.asPredicate();
+	private static final String HREF = "href=\"";
 
 	static boolean containsHref(String string) {
-		return CONTAINS_HREF.test(string);
+		return string.contains(HREF);
 	}
 
 	static String extractHref(String element) {
-		return HREF.matcher(element).group(1);
+		int start = element.indexOf(HREF) + HREF.length();
+		int end = element.indexOf("\"", start);
+		return element.substring(start, end);
 	}
 
 	/**
-	 * Distinguishes between absolute and relative links to the current page being
-	 * searched.
+	 * Generates the link to a new page, given the current page and new link.
 	 * 
-	 * @param context A {@link Context} with the current page and the possibly new
-	 *                page
-	 * @return The correctly formatted new link.
+	 * @param context A {@link Context} with the current page and the new link.
+	 * @return The correctly formatted link to a new page.
 	 */
 	static String handleLinks(Context context) {
 		String currentPage = context.url();
@@ -41,17 +39,33 @@ public final class SearchUtils {
 			return newPage;
 		} else {
 			// TODO Implement the handling of relative links
-			StringBuilder newLink = new StringBuilder(currentPage);
-			return newLink.toString();
+			String[] parts = newPage.split("/");
+			
+			// Simple links on the form "./page" or just "page"
+			if (parts.length < 3) {
+				return currentPage + parts[parts.length-1];
+			}
+			
+			String relativeLevel = currentPage;
+			StringBuilder relativeLink = new StringBuilder();
+			for (String part: parts) {
+				if (part.equals("..")) {
+					int end = currentPage.lastIndexOf("/");
+					relativeLevel = currentPage.substring(0, end);
+					relativeLink.append(part);
+					relativeLink.append("/");
+				}
+			}
+			return relativeLevel + relativeLevel.toString();
 		}
 	}
 
 	/**
 	 * @param link The link to be checked
-	 * @return {@value true} if the link is absolute or relative to the
-	 *         {@systemProperty BASE_URL}, otherwise, {@value false}.
+	 * @return <b>true</b> if the link is absolute or relative to the
+	 *         {@} otherwise, <b>false</b>.
 	 */
 	static boolean validLinks(String link) {
-		return link.startsWith(BASE_URL) || !link.startsWith("http") ;
+		return link.startsWith(BASE_URL) || !link.startsWith("http");
 	}
 }
