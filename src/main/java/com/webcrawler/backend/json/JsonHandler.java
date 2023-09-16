@@ -7,7 +7,7 @@ public class JsonHandler {
 	private static final Gson converter = new Gson();
 
 	public static String getKeyword(String body) {
-		return converter.fromJson("id", String.class);
+		return converter.fromJson("keyword", String.class);
 	}
 	
 	public static <T> String toJson(T input) {

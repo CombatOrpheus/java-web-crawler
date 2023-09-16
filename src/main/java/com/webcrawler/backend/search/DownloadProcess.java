@@ -50,17 +50,19 @@ public final class DownloadProcess {
 
 	/**
 	 * The main method for the search, validation and download of HTML pages. It
-	 * remains active s long as there are elements in the {@link this#SEARCH_QUEUE}.
-	 * The processing is done with a {@link Stream}, which has additional comments
-	 * for clarity.
+	 * remains active s long as there are elements in an internal search queue. The
+	 * processing is done with a {@link Stream}, which has additional comments for
+	 * clarity.
 	 */
 	public static void crawl() {
 		SEARCH_QUEUE.add(new Page(BASE_URL));
 		do {
 			Page page = SEARCH_QUEUE.poll();
-			SEARCH_QUEUE.add(page);
+
+			DOWNLOADED_PAGES.add(page);
+			VISITED_PAGES.add(page.url());
 			String contents = page.contents();
-			
+
 			ANCHOR.matcher(contents) // Search for the HTML anchor elements in a page
 					.results() // Get a Stream with the regex matches
 					.map(MatchResult::group) // Get the matching Strings

@@ -10,6 +10,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public final class HttpDownloader {
+	//TODO Implement logging
 	private static final HttpClient CLIENT = HttpClient.newBuilder()
 			.version(Version.HTTP_2)
 			.connectTimeout(Duration.ofSeconds(10))
