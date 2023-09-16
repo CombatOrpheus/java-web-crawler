@@ -16,12 +16,29 @@ class SearchUtilsTest {
 	private static final String ANCHOR_ELEMENT = "<a class=\"literalurl\" href=\"manpageindex.html\" title=\"Manual page section index\">";
 
 	@Test
-	void testContainsHref() {
+	void shouldReturnTrueWhenContainsHref() {
 		assertTrue(SearchUtils.containsHref(ANCHOR_ELEMENT));
+	}
+	
+	@ParameterizedTest
+	@ValueSource(strings = {"page.html", "./page.html", "./../../page.html"})
+	void shouldReturnTrueForRelativeLinks(String input) {
+		assertTrue(SearchUtils.validLinks(input));
+	}
+	
+	@Test 
+	void shouldReturnFalseWhenDoesNotContainHref() {
+		assertFalse(SearchUtils.containsHref(BASE));
+	}
+	
+	@Test
+	void shouldReturnFalseOnAbsoluteLinksThatAreDifferent() {
+		String testLink = "https://google.com.br";
+		assertFalse(SearchUtils.validLinks(testLink));
 	}
 
 	@Test
-	void testExtractHref() {
+	void shouldExtractHref() {
 		assertFalse(SearchUtils.extractHref(ANCHOR_ELEMENT).isEmpty());
 	}
 
