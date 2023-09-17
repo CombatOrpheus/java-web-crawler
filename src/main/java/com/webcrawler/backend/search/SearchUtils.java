@@ -28,7 +28,7 @@ public final class SearchUtils {
 	 * @param context A {@link Context} with the current page and the new link.
 	 * @return The correctly formatted link to a new page.
 	 */
-	static String handleLinks(Context context) {
+	static String mapIntoAbsoluteLink(Context context) {
 		String currentPage = context.url();
 		String newPage = context.newUrl();
 
@@ -39,8 +39,10 @@ public final class SearchUtils {
 			String[] parts = newPage.split("/");
 			
 			// Simple links on the form "./page" or just "page"
-			if (parts.length < 3) {
-				return currentPage + parts[parts.length-1];
+			if (parts.length < 2) {
+				int end = currentPage.lastIndexOf("/");
+				String lastPart = parts[parts.length-1];
+				return currentPage.substring(0, end + 1) + lastPart;
 			}
 			
 			String relativeLevel = currentPage;
