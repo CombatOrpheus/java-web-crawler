@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ForkJoinPool;
 
 import com.webcrawler.backend.json.GetResponse;
+import com.webcrawler.backend.json.PostResponse;
 import com.webcrawler.backend.repository.QueryRepository;
 
 /**
@@ -34,14 +35,14 @@ public final class SearchScheduler {
 	 *         keyword is valid, otherwise, an empty Optional. It returns the same
 	 *         ID if the same keyword is used multiple times.
 	 */
-	public static Optional<String> validateAndStartSearch(String keyword) {
+	public static Optional<PostResponse> validateAndStartSearch(String keyword) {
 		if (isValid(keyword)) {
 			String id = RandomString.getString(LENGTH_ID);
 			QueryRepository.addById(id, keyword);
 			SearchProcess search = new SearchProcess(keyword);
 			SEARCH_TASKS.put(id, search);
 			threadPool.execute(() -> search.start());
-			return Optional.of(id);
+			return Optional.of(new PostResponse(id));
 		}
 		return Optional.empty();
 	}

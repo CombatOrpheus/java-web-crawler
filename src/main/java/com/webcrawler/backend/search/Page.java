@@ -23,7 +23,7 @@ final class Page {
 	 *         not completed when the method is called.
 	 */
 	String contents() {
-		return this.contents.join();
+		return this.contents.join().toLowerCase();
 	}
 
 }
