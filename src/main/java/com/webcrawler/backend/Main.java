@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import com.webcrawler.backend.json.GetResponse;
 import com.webcrawler.backend.json.JsonHandler;
+import com.webcrawler.backend.json.PostResponse;
 import com.webcrawler.backend.repository.QueryRepository;
 import com.webcrawler.backend.search.DownloadProcess;
 import com.webcrawler.backend.search.SearchScheduler;
@@ -22,7 +23,7 @@ public class Main {
 		
 		post("/crawl", (Request req, Response res) -> {
 			String keyword = JsonHandler.getKeyword(req.body());
-			Optional<String> id = SearchScheduler.validateAndStartSearch(keyword);
+			Optional<PostResponse> id = SearchScheduler.validateAndStartSearch(keyword);
 
 			res.type("application/json");
 			res.status(id.isPresent() ? 200 : 400);

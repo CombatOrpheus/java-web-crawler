@@ -7,11 +7,16 @@ public class JsonHandler {
 	private static final Gson converter = new Gson();
 
 	public static String getKeyword(String body) {
-		return converter.fromJson("keyword", String.class);
+		PostRequest request = converter.fromJson(body, PostRequest.class);
+//		return converter.fromJson(body, String.class);
+		return request.keyword;
 	}
 	
 	public static <T> String toJson(T input) {
 		return converter.toJson(input);
 	}
-
+	
+	private static class PostRequest {
+		String keyword;
+	}
 }
