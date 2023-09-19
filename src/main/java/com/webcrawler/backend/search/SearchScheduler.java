@@ -1,7 +1,5 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.constants.Constants.LENGTH_ID;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +26,8 @@ public final class SearchScheduler {
 	private static final Map<String, SearchProcess> SEARCH_TASKS = new HashMap<>();
 
 	/**
-	 * Validates the keyword and starts the search process for it.
+	 * Validates the keyword and starts the search process for it. If the same
+	 * keyword has already been searched before, the method returns the cached ID.
 	 * 
 	 * @param keyword The keyword to be validated
 	 * @return An {@link Optional} containing the ID of the search process if the
@@ -37,11 +36,14 @@ public final class SearchScheduler {
 	 */
 	public static Optional<PostResponse> validateAndStartSearch(String keyword) {
 		if (isValid(keyword)) {
-			String id = RandomString.getString(LENGTH_ID);
-			QueryRepository.addById(id, keyword);
-			SearchProcess search = new SearchProcess(keyword);
-			SEARCH_TASKS.put(id, search);
-			threadPool.execute(() -> search.start());
+			String id = QueryRepository.addByKeyword(keyword);
+
+			if (!SEARCH_TASKS.containsKey(id)) {
+				SearchProcess search = new SearchProcess(keyword);
+				SEARCH_TASKS.put(id, search);
+				threadPool.execute(() -> search.start());
+			}
+
 			return Optional.of(new PostResponse(id));
 		}
 		return Optional.empty();
