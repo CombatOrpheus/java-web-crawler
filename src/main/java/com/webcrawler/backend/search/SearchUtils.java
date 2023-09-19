@@ -2,6 +2,9 @@ package com.webcrawler.backend.search;
 
 import static com.webcrawler.backend.constants.Constants.BASE_URL;
 
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
 import com.webcrawler.backend.search.DownloadProcess.Context;
 
 /**
@@ -11,6 +14,8 @@ import com.webcrawler.backend.search.DownloadProcess.Context;
 public final class SearchUtils {
 
 	private static final String HREF = "href=\"";
+	private static final Pattern LEVELS_ABOVE = Pattern.compile("\\.\\./");
+	private static final Predicate<String> HAS_LEVELS_ABOVE = LEVELS_ABOVE.asMatchPredicate();
 
 	static boolean containsHref(String string) {
 		return string.contains(HREF);
@@ -34,31 +39,23 @@ public final class SearchUtils {
 
 		if (newPage.startsWith(BASE_URL)) { // Is it an absolute link?
 			return newPage;
-		} else {
-			// TODO Add some useful comments
-			String[] parts = newPage.split("/");
-			
-			// Simple links on the form "./page" or just "page"
-			if (parts.length < 2) {
-				int end = currentPage.lastIndexOf("/");
-				String lastPart = parts[parts.length-1];
-				return currentPage.substring(0, end + 1) + lastPart;
+		} else { //Relative links
+			return handleRelativeLinks(currentPage, newPage);
+		}
+	}
+
+	private static String handleRelativeLinks(String base, String relative) {
+		if (HAS_LEVELS_ABOVE.test(relative)) { // Relative to levels above the current one
+			int levelsToRemove = (int) LEVELS_ABOVE.matcher(relative).results().count();
+			for (int i = 0; i < levelsToRemove; i++) {
+				int lastFowardSlash = base.lastIndexOf("/");
+				base = base.substring(0, lastFowardSlash);
 			}
 			
-			String relativeLevel = currentPage;
-			StringBuilder relativeLink = new StringBuilder();
-			for (String part: parts) {
-				if (part.equals("..")) {
-					int end = relativeLevel.lastIndexOf("/");
-					relativeLevel = currentPage.substring(0, end);
-				}
-				
-				if (!part.startsWith(".")) {
-					relativeLink.append("/");
-					relativeLink.append(part);
-				}
-			}
-			return relativeLevel + relativeLink.toString();
+			return base + relative.replaceAll("../", "");
+		} else { // relative to the current level
+			int lastFowardSlash = base.lastIndexOf("/") + 1;
+			return base.substring(0, lastFowardSlash) + relative.replace("./", ""); 
 		}
 	}
 
