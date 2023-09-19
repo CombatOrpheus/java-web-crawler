@@ -1,4 +1,4 @@
-package com.webcrawler.backend.search;
+package com.webcrawler.backend.repository;
 
 import java.util.HashSet;
 import java.util.Random;

@@ -46,7 +46,7 @@ class SearchUtilsTest {
 	@ValueSource(strings= {"page.html", "./page.html"})
 	void shouldHandleLinksRelativeToCurrentPage(String input) {
 		String expected = BASE + "page.html";
-		String actual = SearchUtils.handleLinks(new Context(BASE, input));
+		String actual = SearchUtils.mapIntoAbsoluteLink(new Context(BASE, input));
 		
 		assertEquals(expected, actual);
 	}
@@ -56,7 +56,7 @@ class SearchUtilsTest {
 		String input = "./../../../../page.html";
 		String current = BASE + "1/2/3/4";
 		String expected = BASE + "page.html";
-		String actual = SearchUtils.handleLinks(new Context(current, input));
+		String actual = SearchUtils.mapIntoAbsoluteLink(new Context(current, input));
 		
 		assertEquals(expected, actual);
 	}

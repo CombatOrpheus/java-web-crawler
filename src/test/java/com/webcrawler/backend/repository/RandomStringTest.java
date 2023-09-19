@@ -1,4 +1,4 @@
-package com.webcrawler.backend.search;
+package com.webcrawler.backend.repository;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
