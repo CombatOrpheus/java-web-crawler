@@ -1,13 +1,11 @@
 package com.webcrawler.backend.repository;
 
-import static com.webcrawler.backend.constants.Constants.LENGTH_ID;
+import com.webcrawler.backend.json.GetResponse;
+import com.webcrawler.backend.search.SearchScheduler;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import com.webcrawler.backend.json.GetResponse;
-import com.webcrawler.backend.search.SearchScheduler;
 
 /**
  * A simple repository to keep track of running queries and their status. All of
@@ -21,8 +19,8 @@ public final class QueryRepository {
 		if (PREVIOUS_SEARCHES.containsKey(keyword)) {
 			return PREVIOUS_SEARCHES.get(keyword);
 		}
-		
-		String id = RandomString.getString(LENGTH_ID);
+
+        String id = RandomString.getString(32);
 		PREVIOUS_SEARCHES.put(keyword, id);
 		return id;
 	}

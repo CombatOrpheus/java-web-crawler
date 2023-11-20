@@ -1,30 +1,24 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.constants.Constants.BASE_URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * The main download process, which asynchronously and recursively searches for
  * all the valid links in the HTML page. The process ends when all of the
- * possible links are visited. The main entry point is the {@link this#crawl()}
+ * possible links are visited. The main entry point is the {@link this#run()}
  * function.
  */
-public final class DownloadProcess {
-	// TODO Implement logging
+public final class DownloadProcess implements Runnable {
+	private final String baseUrl;
 
-	private static Logger logger = LoggerFactory.getLogger(DownloadProcess.class);
+	private static final Logger logger = LoggerFactory.getLogger(DownloadProcess.class);
 
 	/**
 	 * A {@link Queue} containing the links to new valid pages.
@@ -36,7 +30,7 @@ public final class DownloadProcess {
 	 */
 	private static final List<Page> DOWNLOADED_PAGES = new ArrayList<>();
 	/**
-	 * Every visited page is kept in this {@link Set} so as to avoid multiple visits
+	 * Every visited page is kept in this {@link Set} to avoid multiple visits
 	 * to the same URL.
 	 */
 	private static final Set<String> VISITED_PAGES = new TreeSet<>();
@@ -45,6 +39,10 @@ public final class DownloadProcess {
 	 * A {@link Pattern} for the detection of anchor elements on the HTML pages.
 	 */
 	private static final Pattern ANCHOR = Pattern.compile("<a(.*[^>])>");
+
+	public DownloadProcess(String baseUrl) {
+		this.baseUrl = baseUrl;
+	}
 
 	/**
 	 * A simple record that holds the link to the current HTML page and a new link
@@ -59,8 +57,9 @@ public final class DownloadProcess {
 	 * processing is done with a {@link Stream}, which has additional comments for
 	 * clarity.
 	 */
-	public static void crawl() {
-		SEARCH_QUEUE.add(new Page(BASE_URL));
+	@Override
+	public void run() {
+		SEARCH_QUEUE.add(new Page(baseUrl));
 		do {
 			Page page = SEARCH_QUEUE.poll();
 			logger.info("Searching for new links in page " + page.url());
@@ -73,9 +72,9 @@ public final class DownloadProcess {
 					.map(MatchResult::group) // Get the matching Strings
 					.filter(SearchUtils::containsHref) // Remove the elements that do not contain the field href
 					.map(SearchUtils::extractHref) // Extract the link contained in the href
-					.filter(SearchUtils::validLinks) // Remove links that lead to other pages
+					.filter(link -> SearchUtils.validLinks(baseUrl, link)) // Remove links that lead to other pages
 					.map(link -> new Context(page.url(), link)) // Create a pair with the current page and the new link
-					.map(SearchUtils::mapIntoAbsoluteLink) // Generate the absolute links from the relative links
+					.map(context -> SearchUtils.mapIntoAbsoluteLink(baseUrl, context)) // Generate the absolute links from the relative links
 					.map(DownloadProcess::checkVisitedLinks)
 					.filter(link -> !link.isBlank())
 					.map(Page::new) // Create a new Page object and start the download process

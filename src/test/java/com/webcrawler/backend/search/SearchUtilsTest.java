@@ -1,14 +1,11 @@
 package com.webcrawler.backend.search;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.webcrawler.backend.search.DownloadProcess.Context;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.webcrawler.backend.search.DownloadProcess.Context;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SearchUtilsTest {
 	private static final String BASE = "http://hiring.axreng.com/";
@@ -23,7 +20,7 @@ class SearchUtilsTest {
 	@ParameterizedTest
 	@ValueSource(strings = {"page.html", "./page.html", "./../../page.html"})
 	void shouldReturnTrueForRelativeLinks(String input) {
-		assertTrue(SearchUtils.validLinks(input));
+		assertTrue(SearchUtils.validLinks(BASE, input));
 	}
 	
 	@Test 
@@ -34,7 +31,7 @@ class SearchUtilsTest {
 	@Test
 	void shouldReturnFalseOnAbsoluteLinksThatAreDifferent() {
 		String testLink = "https://google.com.br";
-		assertFalse(SearchUtils.validLinks(testLink));
+		assertFalse(SearchUtils.validLinks(BASE, testLink));
 	}
 
 	@Test
@@ -46,17 +43,17 @@ class SearchUtilsTest {
 	@ValueSource(strings= {"page.html", "./page.html"})
 	void shouldHandleLinksRelativeToCurrentPage(String input) {
 		String expected = BASE + "page.html";
-		String actual = SearchUtils.mapIntoAbsoluteLink(new Context(BASE, input));
+		String actual = SearchUtils.mapIntoAbsoluteLink(BASE, new Context(BASE, input));
 		
 		assertEquals(expected, actual);
 	}
 	
 	@Test
 	void shouldHandleRelativeLinksToSuperiorLevels() {
-		String input = "./../../../../page.html";
+		String input = "../../../../page.html";
 		String current = BASE + "1/2/3/4";
 		String expected = BASE + "page.html";
-		String actual = SearchUtils.mapIntoAbsoluteLink(new Context(current, input));
+		String actual = SearchUtils.mapIntoAbsoluteLink(BASE, new Context(current, input));
 		
 		assertEquals(expected, actual);
 	}

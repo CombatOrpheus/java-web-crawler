@@ -1,11 +1,9 @@
 package com.webcrawler.backend.search;
 
-import static com.webcrawler.backend.constants.Constants.BASE_URL;
+import com.webcrawler.backend.search.DownloadProcess.Context;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
-import com.webcrawler.backend.search.DownloadProcess.Context;
 
 /**
  * Several utility functions, extracted into their own class in order to ease
@@ -33,11 +31,11 @@ public final class SearchUtils {
 	 * @param context A {@link Context} with the current page and the new link.
 	 * @return The correctly formatted link to a new page.
 	 */
-	static String mapIntoAbsoluteLink(Context context) {
+	static String mapIntoAbsoluteLink(String baseUrl, Context context) {
 		String currentPage = context.url();
 		String newPage = context.newUrl();
 
-		if (newPage.startsWith(BASE_URL)) { // Is it an absolute link?
+		if (newPage.startsWith(baseUrl)) { // Is it an absolute link?
 			return newPage;
 		} else { //Relative links
 			return handleRelativeLinks(currentPage, newPage);
@@ -45,14 +43,14 @@ public final class SearchUtils {
 	}
 
 	private static String handleRelativeLinks(String base, String relative) {
-		if (HAS_LEVELS_ABOVE.test(relative)) { // Relative to levels above the current one
-			int levelsToRemove = (int) LEVELS_ABOVE.matcher(relative).results().count();
-			for (int i = 0; i < levelsToRemove; i++) {
-				int lastFowardSlash = base.lastIndexOf("/");
-				base = base.substring(0, lastFowardSlash);
+		if (relative.contains("../")) { // Relative to levels above the current one
+			while (relative.startsWith("../")) {
+				int lastLevel = base.lastIndexOf("/");
+				base = base.substring(0, lastLevel);
+				relative = relative.substring(3);
 			}
-			
-			return base + relative.replaceAll("../", "");
+
+			return base + "/" + relative;
 		} else { // relative to the current level
 			int lastFowardSlash = base.lastIndexOf("/") + 1;
 			return base.substring(0, lastFowardSlash) + relative.replace("./", ""); 
@@ -64,7 +62,7 @@ public final class SearchUtils {
 	 * @return <b>true</b> if the link is absolute or relative to the
 	 *         {@} otherwise, <b>false</b>.
 	 */
-	static boolean validLinks(String link) {
-		return link.startsWith(BASE_URL) || !link.startsWith("http");
+	static boolean validLinks(String baseUrl, String link) {
+		return link.startsWith(baseUrl) || !link.startsWith("http");
 	}
 }
