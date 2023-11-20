@@ -1,5 +1,8 @@
 package com.webcrawler.backend.search;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
@@ -8,9 +11,6 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class HttpDownloader {
 	
@@ -28,11 +28,11 @@ public final class HttpDownloader {
 		
 		return CLIENT.sendAsync(request, BodyHandlers.ofString())
 				.thenApply(HttpResponse::body)
-				.exceptionally(t -> logError(t));
+				.exceptionally(throwable -> logError(throwable, url));
 	}
-	
-	private static String logError(Throwable t) {
-		logger.error("Error while downloading page", t);
+
+	private static String logError(Throwable t, String page) {
+		logger.error("Error while downloading page {}\n Error: {}", page, t.getMessage());
 		return "";
 	}
 

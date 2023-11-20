@@ -8,7 +8,6 @@ public class JsonHandler {
 
 	public static String getKeyword(String body) {
 		PostRequest request = converter.fromJson(body, PostRequest.class);
-//		return converter.fromJson(body, String.class);
 		return request.keyword;
 	}
 	

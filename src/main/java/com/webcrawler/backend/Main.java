@@ -27,7 +27,7 @@ public class Main {
 			res.type("application/json");
 			res.status(id.isPresent() ? 200 : 400);
 
-			return id.map(JsonHandler::toJson).orElseGet(() -> "Invalid ID");
+			return id.map(JsonHandler::toJson).orElse("Invalid ID");
 		});
 
 		get("/crawl/:id", (req, res) -> {
@@ -36,7 +36,7 @@ public class Main {
 
 			res.type("application/json");
 			res.status(result.isPresent() ? 200 : 400);
-			return result.map(JsonHandler::toJson).orElseGet(() -> "Unknow ID");
+			return result.map(JsonHandler::toJson).orElse("Unknown ID");
 		});
 	}
 }
