@@ -23,7 +23,7 @@ public final class DownloadProcess implements Runnable {
 	/**
 	 * A {@link Queue} containing the links to new valid pages.
 	 */
-	private static final Queue<Page> SEARCH_QUEUE = new ConcurrentLinkedQueue<Page>();
+	private static final Queue<Page> SEARCH_QUEUE = new ConcurrentLinkedQueue<>();
 	/**
 	 * Pages that have been downloaded are kept in memory and made available for the
 	 * {@link SearchProcess} so that they are only downloaded once.

@@ -2,9 +2,6 @@ package com.webcrawler.backend.search;
 
 import com.webcrawler.backend.search.DownloadProcess.Context;
 
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 /**
  * Several utility functions, extracted into their own class in order to ease
  * testing.
@@ -12,8 +9,6 @@ import java.util.regex.Pattern;
 public final class SearchUtils {
 
 	private static final String HREF = "href=\"";
-	private static final Pattern LEVELS_ABOVE = Pattern.compile("\\.\\./");
-	private static final Predicate<String> HAS_LEVELS_ABOVE = LEVELS_ABOVE.asMatchPredicate();
 
 	static boolean containsHref(String string) {
 		return string.contains(HREF);
@@ -57,11 +52,6 @@ public final class SearchUtils {
 		}
 	}
 
-	/**
-	 * @param link The link to be checked
-	 * @return <b>true</b> if the link is absolute or relative to the
-	 *         {@} otherwise, <b>false</b>.
-	 */
 	static boolean validLinks(String baseUrl, String link) {
 		return link.startsWith(baseUrl) || !link.startsWith("http");
 	}
