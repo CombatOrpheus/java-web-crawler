@@ -34,7 +34,8 @@ public final class SearchScheduler {
 	 *         keyword is valid, otherwise, an empty Optional. It returns the same
 	 *         ID if the same keyword is used multiple times.
 	 */
-	public static Optional<PostResponse> validateAndStartSearch(String keyword) {
+	public Optional<PostResponse> validateAndStartSearch(String keyword) {
+		keyword = keyword.toLowerCase();
 		if (isValid(keyword)) {
 			String id = QueryRepository.addByKeyword(keyword);
 

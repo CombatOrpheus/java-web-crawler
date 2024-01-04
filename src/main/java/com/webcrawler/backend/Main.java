@@ -19,10 +19,11 @@ public class Main {
 	public static void main(String[] args) {
 
         Executors.newSingleThreadExecutor().submit(new DownloadProcess(args[0]));
+        SearchScheduler searchScheduler = new SearchScheduler();
 		
 		post("/crawl", (Request req, Response res) -> {
 			String keyword = JsonHandler.getKeyword(req.body());
-			Optional<PostResponse> id = SearchScheduler.validateAndStartSearch(keyword);
+			Optional<PostResponse> id = searchScheduler.validateAndStartSearch(keyword);
 
 			res.type("application/json");
 			res.status(id.isPresent() ? 200 : 400);
