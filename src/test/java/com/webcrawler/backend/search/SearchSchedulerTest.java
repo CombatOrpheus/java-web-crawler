@@ -2,6 +2,7 @@ package com.webcrawler.backend.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,12 @@ class SearchSchedulerTest {
 	@AfterEach
 	void tearDown() {
 		this.scheduler = null;
+	}
+	
+	@Test
+	void invalidKeywordShouldReturnEmptyOptional() {
+		Optional<PostResponse> result = scheduler.validateAndStartSearch("");
+		assertTrue(result.isEmpty());
 	}
 
 	@Test
@@ -55,6 +62,20 @@ class SearchSchedulerTest {
 		for (String result: results) {
 			assertEquals(id, result);
 		}
+	}
+	
+	@Test
+	void invalidIdReturnsEmptyResult() {
+		var result = scheduler.getResults("id");
+		assertTrue(result.isEmpty());
+	}
+	
+	@Test
+	void idShouldReturnValidResult() {
+		Optional<PostResponse> id = scheduler.validateAndStartSearch("keyword");
+		var result = scheduler.getResults(getString(id));
+		
+		assertTrue(result.isPresent());
 	}
 	
 	private String getString(Optional<PostResponse> optional) {

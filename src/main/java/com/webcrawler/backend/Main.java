@@ -20,6 +20,7 @@ public class Main {
 
         Executors.newSingleThreadExecutor().submit(new DownloadProcess(args[0]));
         SearchScheduler searchScheduler = new SearchScheduler();
+        QueryRepository repository = new QueryRepository(searchScheduler);
 		
 		post("/crawl", (Request req, Response res) -> {
 			String keyword = JsonHandler.getKeyword(req.body());
@@ -33,7 +34,7 @@ public class Main {
 
 		get("/crawl/:id", (req, res) -> {
 			String id = req.params("id");
-			Optional<GetResponse> result = QueryRepository.getById(id);
+			Optional<GetResponse> result = repository.getById(id);
 
 			res.type("application/json");
 			res.status(result.isPresent() ? 200 : 400);

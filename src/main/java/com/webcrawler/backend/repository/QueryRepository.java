@@ -12,6 +12,11 @@ import java.util.Optional;
  * its methods are static in order to avoid multiple objects being created.
  */
 public final class QueryRepository {
+	private SearchScheduler scheduler;
+	
+	public QueryRepository(SearchScheduler scheduler) {
+		this.scheduler = scheduler;
+	}
 	
 	private static final Map<String, String> PREVIOUS_SEARCHES = new HashMap<>();
 
@@ -25,7 +30,7 @@ public final class QueryRepository {
 		return id;
 	}
 	
-	public static Optional<GetResponse> getById(String id) {
-		return SearchScheduler.getResults(id);
+	public Optional<GetResponse> getById(String id) {
+		return scheduler.getResults(id);
 	}
 }

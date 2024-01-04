@@ -58,7 +58,7 @@ public final class SearchScheduler {
 	 * @return If the ID exists, an {@link Optional} containing the
 	 *         {@link GetResponse} results, otherwise, and empty Optional.
 	 */
-	public static Optional<GetResponse> getResults(String id) {
+	public Optional<GetResponse> getResults(String id) {
 		if (SEARCH_TASKS.containsKey(id)) {
 			SearchProcess searchProcess = SEARCH_TASKS.get(id);
 			return Optional.of(searchProcess.getResult());
