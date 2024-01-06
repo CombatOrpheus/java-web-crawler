@@ -3,7 +3,9 @@ package com.webcrawler.backend.search;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A class that hides the asynchronous download of an HTML page.
+ * A class that hides the asynchronous download of an HTML page. It also offers
+ * some simple methods for validating links and generating new absolute links to
+ * new pages.
  */
 final class Page {
 	private final String url;
@@ -24,6 +26,14 @@ final class Page {
 	 */
 	String contents() {
 		return this.contents.join().toLowerCase();
+	}
+
+	boolean isValidLink(String link) {
+		return true;
+	}
+
+	String mapToAbsoluteLink(String link) {
+		return null;
 	}
 
 }
