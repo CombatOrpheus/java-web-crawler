@@ -39,10 +39,10 @@ final class SearchProcess {
 		do {
 			List<Page> pageList = DownloadProcess.getDownloadedPages();
 			for (Page page : pageList) {
-				searchedPages.add(page.url());
-				if (page.contents().contains(keyword)) {
-					logger.info("Found keyword {} in page {}", keyword, page.url());
-					results.add(page.url());
+				searchedPages.add(page.getUrl());
+				if (page.getContents().contains(keyword)) {
+					logger.info("Found keyword {} in page {}", keyword, page.getUrl());
+					results.add(page.getUrl());
 				}
 			}
 
