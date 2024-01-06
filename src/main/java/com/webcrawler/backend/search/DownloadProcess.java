@@ -45,13 +45,6 @@ public final class DownloadProcess implements Runnable {
 	}
 
 	/**
-	 * A simple record that holds the link to the current HTML page and a new link
-	 * that is either the absolute link to a new page or a relative link.
-	 */
-	record Context(String url, String newUrl) {
-	}
-
-	/**
 	 * The main method for the search, validation and download of HTML pages. It
 	 * remains active s long as there are elements in an internal search queue. The
 	 * processing is done with a {@link Stream}, which has additional comments for
@@ -72,9 +65,8 @@ public final class DownloadProcess implements Runnable {
 					.map(MatchResult::group) // Get the matching Strings
 					.filter(SearchUtils::containsHref) // Remove the elements that do not contain the field href
 					.map(SearchUtils::extractHref) // Extract the link contained in the href
-					.filter(link -> SearchUtils.validLinks(baseUrl, link)) // Remove links that lead to other pages
-					.map(link -> new Context(page.url(), link)) // Create a pair with the current page and the new link
-					.map(context -> SearchUtils.mapIntoAbsoluteLink(baseUrl, context)) // Generate the absolute links from the relative links
+					.filter(page::isValidLink) // Remove links that lead to other pages
+					.map(page::mapToAbsoluteLink) // Generate the absolute links from the relative links
 					.map(DownloadProcess::checkVisitedLinks)
 					.filter(link -> !link.isBlank())
 					.map(Page::new) // Create a new Page object and start the download process
