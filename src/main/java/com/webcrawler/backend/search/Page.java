@@ -40,7 +40,7 @@ final class Page {
 	 *         download has not completed when the method is called.
 	 */
 	public String getContents() {
-		return this.contents.join().toLowerCase();
+		return this.contents.join();
 	}
 
 	public String mapToAbsoluteLink(String link) {

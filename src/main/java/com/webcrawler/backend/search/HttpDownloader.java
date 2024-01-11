@@ -22,7 +22,7 @@ public final class HttpDownloader {
 	public CompletableFuture<String> downloadPage(String url) {
 		HttpRequest request = HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(5L)).build();
 
-		return CLIENT.sendAsync(request, BodyHandlers.ofString()).thenApply(HttpResponse::body)
+		return CLIENT.sendAsync(request, BodyHandlers.ofString()).thenApply(HttpResponse::body).thenApply(String::toLowerCase)
 				.exceptionally(throwable -> logError(throwable, url));
 	}
 
