@@ -43,13 +43,14 @@ final class Page {
 		return this.contents.join();
 	}
 
+	// TODO Infinite loop, fix ASAP
 	public String mapToAbsoluteLink(String link) {
 		if (link.startsWith("http")) { // Absolute Links
 			return link;
 		} else if (link.startsWith("../")) { // Above current level
 			String copy = url;
 			String cleanedLink = link;
-			for (int i = 0; i < levelsAbove(link); i++) {
+			for (int i = levelsAbove(link); i > 0; i--) {
 				copy = copy.substring(0, link.lastIndexOf('/'));
 				cleanedLink = cleanedLink.substring(3, cleanedLink.length());
 			}
