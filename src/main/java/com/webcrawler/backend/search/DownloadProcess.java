@@ -71,12 +71,13 @@ public final class DownloadProcess implements Runnable {
 			ANCHOR.matcher(contents) // Search for the HTML anchor elements in a page
 					.results() // Get a Stream with the regex matches
 					.map(MatchResult::group) // Get the matching Strings
-					.filter(this::containsHref).map(this::extractHref).filter(page.startsWithValidCharacter)
-					.map(page::mapToAbsoluteLink).map(DownloadProcess::checkVisitedLinks).filter(Objects::nonNull)
-					.map(link -> new Page(link, downloader.downloadPage(link))).forEach(SEARCH_QUEUE::add);
+					.filter(this::containsHref).map(this::extractHref).filter(page::isValidLink)
+					.map(page::mapToAbsoluteLink).filter(this::differentSite).map(DownloadProcess::checkVisitedLinks)
+					.filter(Objects::nonNull).map(link -> new Page(link, downloader.downloadPage(link)))
+					.forEach(SEARCH_QUEUE::add);
 
 		} while (!SEARCH_QUEUE.isEmpty());
-		logger.info("Download Process complete!");
+		logger.info("Download Process complete");
 	}
 
 	public static boolean isComplete() {
@@ -115,5 +116,9 @@ public final class DownloadProcess implements Runnable {
 		int start = element.indexOf(HREF) + HREF.length();
 		int end = element.indexOf("\"", start);
 		return element.substring(start, end);
+	}
+
+	private boolean differentSite(String string) {
+		return string.startsWith(baseUrl);
 	}
 }

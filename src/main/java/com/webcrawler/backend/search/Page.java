@@ -15,7 +15,7 @@ final class Page {
 	private final CompletableFuture<String> contents;
 
 	private final Pattern VALID_CHARACTERS = Pattern.compile("^\\w?\\d|/|\\./");
-	public Predicate<String> startsWithValidCharacter = VALID_CHARACTERS.asPredicate();
+	private Predicate<String> startsWithValidCharacter = VALID_CHARACTERS.asPredicate();
 
 	Page(String url, CompletableFuture<String> contents) {
 		this.url = url;
