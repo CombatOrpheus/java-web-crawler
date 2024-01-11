@@ -73,7 +73,7 @@ public final class DownloadProcess implements Runnable {
 					.map(MatchResult::group) // Get the matching Strings
 					.filter(this::containsHref).map(this::extractHref).filter(page.startsWithValidCharacter)
 					.map(page::mapToAbsoluteLink).map(DownloadProcess::checkVisitedLinks).filter(Objects::nonNull)
-					.map(link -> new Page(link, downloader.downloadPage(contents))).forEach(SEARCH_QUEUE::add);
+					.map(link -> new Page(link, downloader.downloadPage(link))).forEach(SEARCH_QUEUE::add);
 
 		} while (!SEARCH_QUEUE.isEmpty());
 		logger.info("Download Process complete!");
