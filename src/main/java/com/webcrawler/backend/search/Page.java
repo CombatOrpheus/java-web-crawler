@@ -14,10 +14,8 @@ final class Page {
 	private final String baseUrl;
 	private final CompletableFuture<String> contents;
 
-	private final Pattern LEVEL_ABOVE = Pattern.compile("^\\.\\./");
 	private final Pattern VALID_CHARACTERS = Pattern.compile("^\\w?\\d|/|\\./");
 	public Predicate<String> startsWithValidCharacter = VALID_CHARACTERS.asPredicate();
-	private final Pattern RELATIVE_CURRENT = Pattern.compile("^(\\./)|/");
 
 	Page(String url, CompletableFuture<String> contents) {
 		this.url = url;
@@ -50,20 +48,20 @@ final class Page {
 		} else if (link.startsWith("../")) { // Above current level
 			String copy = url;
 			String cleanedLink = link;
-			for (int i = levelsAbove(link); i > 0; i--) {
-				copy = copy.substring(0, link.lastIndexOf('/'));
+			while (cleanedLink.startsWith("../")) {
+				copy = copy.substring(0, copy.lastIndexOf('/'));
 				cleanedLink = cleanedLink.substring(3, cleanedLink.length());
 			}
 			return copy + "/" + cleanedLink;
 
 		} else { // Relative to current level
-			if (RELATIVE_CURRENT.asMatchPredicate().test(link)) {
-				int start = RELATIVE_CURRENT.matcher(link).end();
-				String base = url.substring(0, url.lastIndexOf('/') + 1);
+			if (link.startsWith("/") || link.startsWith("./")) {
+				int start = link.indexOf('/');
+				String base = url.substring(0, url.lastIndexOf('/'));
 				String complement = link.substring(start);
 				return base + complement;
 			} else {
-				return url + "/" + link;
+				return url + link;
 			}
 		}
 	}
@@ -76,12 +74,5 @@ final class Page {
 		} else {
 			return startsWithValidCharacter.test(link);
 		}
-	}
-
-	private int levelsAbove(String link) {
-		int total = 0;
-		LEVEL_ABOVE.matcher(link).results().count();
-		return total;
-
 	}
 }
