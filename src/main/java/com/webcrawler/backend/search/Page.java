@@ -11,26 +11,26 @@ import java.util.regex.Pattern;
  */
 final class Page {
 	private final String url;
-	private final String baseUrl;
-	private final CompletableFuture<String> contents;
+	private CompletableFuture<String> future;
 
 	private final Pattern VALID_CHARACTERS = Pattern.compile("^\\w?\\d|/|\\./");
 	private Predicate<String> startsWithValidCharacter = VALID_CHARACTERS.asPredicate();
 
+	Page(String url) {
+		this.url = url;
+	}
+
 	Page(String url, CompletableFuture<String> contents) {
 		this.url = url;
-		this.contents = contents;
-
-		int index = url.indexOf('/', 9);
-		if (index > 0) {
-			this.baseUrl = url.substring(0, index);
-		} else {
-			this.baseUrl = url;
-		}
+		this.future = contents;
 	}
 
 	public String getUrl() {
 		return this.url;
+	}
+
+	public void asyncDownload(CompletableFuture<String> future) {
+		this.future = future;
 	}
 
 	/**
@@ -38,10 +38,9 @@ final class Page {
 	 *         download has not completed when the method is called.
 	 */
 	public String getContents() {
-		return this.contents.join();
+		return this.future.join();
 	}
 
-	// TODO Infinite loop, fix ASAP
 	public String mapToAbsoluteLink(String link) {
 		if (link.startsWith("http")) { // Absolute Links
 			return link;
@@ -68,7 +67,7 @@ final class Page {
 
 	public boolean isValidLink(String link) {
 		if (link.startsWith("http")) {
-			return link.startsWith(baseUrl);
+			return true;
 		} else if (link.startsWith("tel") || link.startsWith("mail")) {
 			return false;
 		} else {
