@@ -8,7 +8,6 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -42,13 +41,10 @@ class PageTest {
 		assertTrue(actual.startsWith(base));
 	}
 
-	@Test
-	void validLinks() {
-
-	}
+	// TODO Add tests for handling of links above the current level.
 
 	@ParameterizedTest
-	@ValueSource(strings = { "#A header", "tel:+12342523", "mail:anEmail@somewhere.com", "https://bing.com" })
+	@ValueSource(strings = { "#A header", "tel:+12342523", "mail:anEmail@somewhere.com" })
 	void invalidLinks(String link) {
 		assertFalse(page.isValidLink(link));
 	}

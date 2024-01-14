@@ -56,9 +56,8 @@ final class Page {
 		} else { // Relative to current level
 			if (link.startsWith("/") || link.startsWith("./")) {
 				int start = link.indexOf('/');
-				String base = url.substring(0, url.lastIndexOf('/'));
 				String complement = link.substring(start);
-				return base + complement;
+				return url + complement;
 			} else {
 				return url + link;
 			}
