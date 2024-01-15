@@ -8,6 +8,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -41,7 +42,15 @@ class PageTest {
 		assertTrue(actual.startsWith(base));
 	}
 
-	// TODO Add tests for handling of links above the current level.
+	@Test
+	void mapLinkToLevelAboveCurrentPage() {
+		String current = base + "/page";
+		this.page = new Page(current, CompletableFuture.supplyAsync(() -> "contents"));
+
+		String link = "../another/page/on/the/tree";
+		String expected = base + link.substring(2);
+		assertEquals(expected, page.mapToAbsoluteLink(link));
+	}
 
 	@ParameterizedTest
 	@ValueSource(strings = { "#A header", "tel:+12342523", "mail:anEmail@somewhere.com" })
