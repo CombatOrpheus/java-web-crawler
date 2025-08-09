@@ -27,11 +27,12 @@ final class RandomString {
 	 * @param length The length of the desired string
 	 * @return An alphanumeric string
 	 */
-	protected static String getString(int length) {
+	static String getString(int length) {
 		String id;
 		do {
 			id = generateID(length);
 		} while (GENERATED_IDS.contains(id));
+		GENERATED_IDS.add(id);
 		return id;
 	}
 	

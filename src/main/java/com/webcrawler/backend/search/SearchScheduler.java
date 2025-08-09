@@ -7,7 +7,7 @@ import java.util.concurrent.ForkJoinPool;
 
 import com.webcrawler.backend.json.GetResponse;
 import com.webcrawler.backend.json.PostResponse;
-import com.webcrawler.backend.repository.QueryRepository;
+import com.webcrawler.backend.repository.SearchHistory;
 
 /**
  * The main class for the starting and querying the search processes.
@@ -15,6 +15,8 @@ import com.webcrawler.backend.repository.QueryRepository;
  * multiple searches for the same keyword.
  */
 public final class SearchScheduler {
+	private final DownloadProcessInterface downloadProcess;
+
 	/**
 	 * A simple thread pool for keeping multiple jobs running concurrently.
 	 */
@@ -24,6 +26,10 @@ public final class SearchScheduler {
 	 * A map containing the ID and the corresponding search process.
 	 */
 	private static final Map<String, SearchProcess> SEARCH_TASKS = new HashMap<>();
+
+	public SearchScheduler(DownloadProcessInterface downloadProcess) {
+		this.downloadProcess = downloadProcess;
+	}
 
 	/**
 	 * Validates the keyword and starts the search process for it. If the same
@@ -37,12 +43,12 @@ public final class SearchScheduler {
 	public Optional<PostResponse> validateAndStartSearch(String keyword) {
 		keyword = keyword.toLowerCase();
 		if (isValid(keyword)) {
-			String id = QueryRepository.addByKeyword(keyword);
+			String id = SearchHistory.addByKeyword(keyword);
 
 			if (!SEARCH_TASKS.containsKey(id)) {
-				SearchProcess search = new SearchProcess(keyword);
+				SearchProcess search = new SearchProcess(keyword, downloadProcess);
 				SEARCH_TASKS.put(id, search);
-				threadPool.execute(() -> search.start());
+				threadPool.execute(search::start);
 			}
 
 			return Optional.of(new PostResponse(id));
