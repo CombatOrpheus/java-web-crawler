@@ -3,6 +3,7 @@ package com.webcrawler.backend.search;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,7 @@ class SearchSchedulerTest {
 	
 	@BeforeEach
 	void setUp() {
-		this.scheduler = new SearchScheduler();
+		this.scheduler = new SearchScheduler(mock(DownloadProcessInterface.class));
 	}
 	
 	@AfterEach
@@ -79,6 +80,6 @@ class SearchSchedulerTest {
 	}
 	
 	private String getString(Optional<PostResponse> optional) {
-		return optional.get().id();
+		return optional.get().getId();
 	}
 }

@@ -1,5 +1,6 @@
 package com.webcrawler.backend.search;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -41,36 +42,39 @@ final class Page {
 		return this.future.join();
 	}
 
+	/**
+	 * Maps a link to an absolute URL.
+	 * @param link the link to map
+	 * @return the absolute URL
+	 */
 	public String mapToAbsoluteLink(String link) {
-		if (link.startsWith("http")) { // Absolute Links
-			return link;
-		} else if (link.startsWith("../")) { // Above current level
-			String copy = url;
-			String cleanedLink = link;
-			while (cleanedLink.startsWith("../")) {
-				copy = copy.substring(0, copy.lastIndexOf('/'));
-				cleanedLink = cleanedLink.substring(3, cleanedLink.length());
-			}
-			return copy + "/" + cleanedLink;
-
-		} else { // Relative to current level
-			if (link.startsWith("/") || link.startsWith("./")) {
-				int start = link.indexOf('/');
-				String complement = link.substring(start);
-				return url + complement;
-			} else {
-				return url + link;
-			}
+		try {
+			URI baseUri = new URI(this.url);
+			URI resolvedUri = baseUri.resolve(link);
+			return resolvedUri.toString();
+		} catch (Exception e) {
+			return "";
 		}
 	}
 
+	/**
+	 * Checks if a link is valid.
+	 * @param link the link to check
+	 * @return true if the link is valid, false otherwise
+	 */
 	public boolean isValidLink(String link) {
-		if (link.startsWith("http")) {
-			return true;
-		} else if (link.startsWith("tel") || link.startsWith("mail")) {
+		if (link == null || link.isBlank()) {
 			return false;
-		} else {
-			return startsWithValidCharacter.test(link);
+		}
+		if (link.startsWith("tel:") || link.startsWith("mailto:")) {
+			return false;
+		}
+		try {
+			URI uri = new URI(link);
+			String scheme = uri.getScheme();
+			return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+		} catch (Exception e) {
+			return false;
 		}
 	}
 }

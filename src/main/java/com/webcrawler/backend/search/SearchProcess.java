@@ -1,15 +1,14 @@
 package com.webcrawler.backend.search;
 
+import com.webcrawler.backend.json.GetResponse;
+import com.webcrawler.backend.json.Status;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.webcrawler.backend.json.GetResponse;
-import com.webcrawler.backend.json.Status;
 
 /**
  * This class implements the search process for a particular keyword and is
@@ -21,12 +20,14 @@ final class SearchProcess {
 	private final Logger logger = LoggerFactory.getLogger(SearchProcess.class);
 
 	private final String keyword;
+	private final DownloadProcessInterface downloadProcess;
 	private final List<String> results = new ArrayList<>();
 	private final Set<String> searchedPages = new HashSet<>();
 	private boolean complete;
 
-	SearchProcess(String keyword) {
+	SearchProcess(String keyword, DownloadProcessInterface downloadProcess) {
 		this.keyword = keyword;
+		this.downloadProcess = downloadProcess;
 		this.complete = false;
 	}
 
@@ -36,25 +37,27 @@ final class SearchProcess {
 	 */
 	public void start() {
 		logger.info("Starting search process for keyword \"{}\"", keyword);
-		do {
-			List<Page> pageList = DownloadProcess.getDownloadedPages();
+		while (!complete) {
+			List<Page> pageList = downloadProcess.getDownloadedPages();
 			for (Page page : pageList) {
-				searchedPages.add(page.getUrl());
-				if (page.getContents().contains(keyword)) {
-					logger.info("Found keyword {} in page {}", keyword, page.getUrl());
-					results.add(page.getUrl());
+				if (!searchedPages.contains(page.getUrl())) {
+					searchedPages.add(page.getUrl());
+					if (page.getContents().contains(keyword)) {
+						logger.info("Found keyword {} in page {}", keyword, page.getUrl());
+						results.add(page.getUrl());
+					}
 				}
 			}
 
-			if (DownloadProcess.getVisitedPages().containsAll(searchedPages)) {
+			if (downloadProcess.isComplete()) {
 				this.complete = true;
 			}
-		} while (complete);
+		}
 		logger.info("Keyword search for \"{}\" complete!", keyword);
 	}
 
 	public GetResponse getResult() {
-		return new GetResponse(keyword, complete ? Status.ACTIVE : Status.DONE, results);
+		return new GetResponse(keyword, complete ? Status.DONE : Status.ACTIVE, results);
 	}
 
 }
