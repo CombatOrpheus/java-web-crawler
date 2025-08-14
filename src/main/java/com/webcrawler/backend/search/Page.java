@@ -72,7 +72,7 @@ final class Page {
 		try {
 			URI uri = new URI(link);
 			String scheme = uri.getScheme();
-			return "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
+			return scheme == null || "http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme);
 		} catch (Exception e) {
 			return false;
 		}

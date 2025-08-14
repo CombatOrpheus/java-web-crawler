@@ -1,5 +1,7 @@
 package com.webcrawler.backend.search;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +14,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.regex.MatchResult;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * The main download process, which asynchronously and recursively searches for
@@ -44,12 +45,6 @@ public final class DownloadProcess implements DownloadProcessInterface {
 	 */
 	private final Set<String> visitedPages = new TreeSet<>();
 
-	/**
-	 * A {@link Pattern} for the detection of anchor elements on the HTML pages.
-	 */
-	private static final Pattern ANCHOR = Pattern.compile("<a(.*?)>");
-	private static final Pattern HREF = Pattern.compile("href=\"(.*?)\"");
-
 	public DownloadProcess(String baseUrl) {
 		this.baseUrl = baseUrl;
 		try {
@@ -62,7 +57,7 @@ public final class DownloadProcess implements DownloadProcessInterface {
 	/**
 	 * The main method for the search, validation and download of HTML pages. It
 	 * remains active s long as there are elements in an internal search queue. The
-	 * processing is done with a {@link Stream}.
+	 * processing is done with a {@link java.util.stream.Stream}.
 	 */
 	@Override
 	public void run() {
@@ -75,24 +70,28 @@ public final class DownloadProcess implements DownloadProcessInterface {
 			logger.info("Searching for new links in page " + page.getUrl());
 
 			downloadedPages.add(page);
-			String contents = page.getContents();
 
-			ANCHOR.matcher(contents) // Search for the HTML anchor elements in a page
-					.results() // Get a Stream with the regex matches
-					.map(MatchResult::group) // Get the matching Strings
-					.map(this::extractHref)
-					.filter(Objects::nonNull)
-					.peek(link -> logger.info("Found link: {}", link))
-					.filter(page::isValidLink)
-					.map(page::mapToAbsoluteLink)
-					.filter(this::isSameSite)
-					.map(this::checkVisitedLinks)
-					.filter(Objects::nonNull)
+			getLinks(page).stream()
 					.map(link -> new Page(link, downloader.downloadPage(link)))
 					.forEach(searchQueue::add);
 
 		} while (!searchQueue.isEmpty());
 		logger.info("Download Process complete");
+	}
+
+	public List<String> getLinks(Page page) {
+		Document doc = Jsoup.parse(page.getContents());
+		return doc.select("a[href]").stream()
+				.map(element -> element.attr("href"))
+				.filter(Objects::nonNull)
+				.peek(link -> logger.info("Found link: {}", link))
+				.filter(page::isValidLink)
+				.map(page::mapToAbsoluteLink)
+				.filter(this::isSameSite)
+				.distinct()
+				.map(this::checkVisitedLinks)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
 	}
 
 	public boolean isComplete() {
@@ -119,23 +118,15 @@ public final class DownloadProcess implements DownloadProcessInterface {
 		return string;
 	}
 
-	/**
-	 * Extract the href from the anchor element. A proper HTML parser
-	 * would be more robust.
-	 */
-	private String extractHref(String element) {
-		var matcher = HREF.matcher(element);
-		if (matcher.find()) {
-			return matcher.group(1);
-		}
-		return null;
-	}
-
 	private boolean isSameSite(String url) {
 		try {
 			URI uri = new URI(url);
-			logger.info("Checking site: url={}, baseUri={}, uri={}, baseUri.host={}, uri.host={}, baseUri.port={}, uri.port={}", url, baseUri, uri, baseUri.getHost(), uri.getHost(), baseUri.getPort(), uri.getPort());
-			return baseUri.getHost().equals(uri.getHost()) && baseUri.getPort() == uri.getPort();
+
+			if (uri.getHost() == null) {
+				return false;
+			}
+
+			return uri.getHost().equals(baseUri.getHost());
 		} catch (URISyntaxException e) {
 			logger.warn("Invalid URL found: {}", url);
 			return false;
